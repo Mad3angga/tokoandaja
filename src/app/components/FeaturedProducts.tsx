@@ -60,6 +60,8 @@ export default function FeaturedProducts() {
   const [, setCurrentSlide] = useState(0);
   const [featuredProduct, setFeaturedProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [viewerCount, setViewerCount] = useState<number | null>(null);
+  const [showViewerPopup, setShowViewerPopup] = useState(false);
   
   // Format harga dalam Rupiah - using a more consistent approach to avoid hydration errors
   const formatPrice = (price: number) => {
@@ -83,6 +85,24 @@ export default function FeaturedProducts() {
     }
     
     loadFeaturedProduct();
+    
+    // Simulasi jumlah orang yang melihat produk
+    const randomViewers = Math.floor(Math.random() * 5) + 1; // Random antara 1-5 orang
+    setViewerCount(randomViewers);
+    
+    // Tampilkan popup setelah beberapa detik
+    const popupTimer = setTimeout(() => {
+      setShowViewerPopup(true);
+      
+      // Sembunyikan popup setelah beberapa detik
+      const hideTimer = setTimeout(() => {
+        setShowViewerPopup(false);
+      }, 8000); // Popup akan hilang setelah 8 detik
+      
+      return () => clearTimeout(hideTimer);
+    }, 2000); // Popup akan muncul setelah 2 detik
+    
+    return () => clearTimeout(popupTimer);
   }, []);
   
   // Konfigurasi slider
@@ -165,7 +185,19 @@ export default function FeaturedProducts() {
               )}
             </div>
             
-            <div className="p-4">
+            <div className="p-4 relative">
+              {/* Popup Viewer */}
+              {showViewerPopup && viewerCount && (
+                <div className="absolute -top-3 left-4 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium shadow-md animate-pulse transition-opacity">
+                  <div className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    {viewerCount} orang sedang melihat produk ini
+                  </div>
+                </div>
+              )}
               <h3 className="text-lg font-semibold text-gray-900 mb-1">{featuredProduct.name}</h3>
               
               {/* Harga dengan Diskon */}
@@ -183,14 +215,14 @@ export default function FeaturedProducts() {
                 </div>
               )}
               
-              <p className="text-gray-800 text-sm mb-4">{featuredProduct.description}</p>
+              <p className="text-gray-800 text-sm mb-4 whitespace-pre-line">{featuredProduct.description}</p>
               
               <div className="flex space-x-2">
                 <a 
                   href={`/products/${featuredProduct.id}`}
                   className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 px-3 rounded text-center text-sm transition"
                 >
-                  Detail
+                  Detail produk
                 </a>
                 <a 
                   href={`https://wa.me/6282135626476?text=Halo%2C%20saya%20tertarik%20dengan%20produk%20*${encodeURIComponent(featuredProduct.name)}*%20dengan%20harga%20${encodeURIComponent(formattedPrice)}%20yang%20sedang%20diskon.%20Apakah%20masih%20tersedia%3F`}

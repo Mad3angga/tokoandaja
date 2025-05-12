@@ -40,7 +40,7 @@ export default function ProductCard({ id, name, price, image, description }: Pro
       <div className="p-4">
         <h3 className="text-lg font-semibold text-gray-900 mb-1">{name}</h3>
         <p className="text-green-600 font-bold mb-2">{formattedPrice}</p>
-        <p className="text-gray-800 text-sm mb-4 line-clamp-2">{description}</p>
+        <p className="text-gray-800 text-sm mb-4 line-clamp-2 whitespace-pre-line">{description}</p>
         
         <div className="flex space-x-2">
           <Link 

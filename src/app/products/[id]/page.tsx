@@ -84,7 +84,7 @@ export default async function ProductDetail({ params }: any) {
             
             <div className="mb-6">
               <h2 className="text-lg font-semibold mb-2 text-gray-900">Deskripsi Produk</h2>
-              <p className="text-gray-800">{product.description}</p>
+              <p className="text-gray-800 whitespace-pre-line">{product.description}</p>
             </div>
             
             {/* Tombol Beli */}
