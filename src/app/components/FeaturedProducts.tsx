@@ -61,13 +61,10 @@ export default function FeaturedProducts() {
   const [featuredProduct, setFeaturedProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   
-  // Format harga dalam Rupiah
+  // Format harga dalam Rupiah - using a more consistent approach to avoid hydration errors
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(price);
+    // Simple formatting to avoid locale-specific issues that can cause hydration errors
+    return `Rp ${price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;  
   };
   
   // Mengambil data produk unggulan dari Supabase

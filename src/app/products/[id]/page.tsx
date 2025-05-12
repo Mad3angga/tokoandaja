@@ -29,12 +29,8 @@ export default async function ProductDetail({ params }: any) {
     notFound();
   }
   
-  // Format harga dalam Rupiah
-  const formattedPrice = new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(product.price);
+  // Format harga dalam Rupiah - using a more consistent approach to avoid hydration errors
+  const formattedPrice = `Rp ${product.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
   
   // Fungsi untuk membuat pesan WhatsApp
   const createWhatsAppMessage = () => {
