@@ -4,8 +4,16 @@ import Link from 'next/link';
 import { FaWhatsapp, FaArrowLeft } from 'react-icons/fa';
 import { notFound } from 'next/navigation';
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
-  // Get product by ID
+// Define the type for page parameters
+interface ProductPageParams {
+  id: string;
+}
+
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: ProductPageParams 
+}) {
   const product = await getProductById(params.id);
   
   if (!product) {
@@ -21,8 +29,11 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   };
 }
 
-export default async function ProductDetail({ params }: { params: { id: string } }) {
-  // Get product by ID
+export default async function ProductDetail({ 
+  params 
+}: { 
+  params: ProductPageParams 
+}) {
   const product = await getProductById(params.id);
   
   if (!product) {
