@@ -5,9 +5,8 @@ import { FaWhatsapp, FaArrowLeft } from 'react-icons/fa';
 import { notFound } from 'next/navigation';
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
-  // Await params sebelum mengakses propertinya
-  const resolvedParams = await params;
-  const product = await getProductById(resolvedParams.id);
+  // Get product by ID
+  const product = await getProductById(params.id);
   
   if (!product) {
     return {
@@ -23,9 +22,8 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
 }
 
 export default async function ProductDetail({ params }: { params: { id: string } }) {
-  // Await params sebelum mengakses propertinya
-  const resolvedParams = await params;
-  const product = await getProductById(resolvedParams.id);
+  // Get product by ID
+  const product = await getProductById(params.id);
   
   if (!product) {
     notFound();
