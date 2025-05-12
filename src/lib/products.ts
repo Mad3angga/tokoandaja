@@ -33,7 +33,23 @@ export async function getAllProducts(): Promise<Product[]> {
 }
 
 // Fungsi untuk mengubah snake_case ke camelCase
-function transformProductData(product: any): Product | null {
+// Define a type for the raw product data from the database
+type RawProductData = {
+  id: string;
+  name: string;
+  price: number;
+  original_price?: number;
+  discount?: number;
+  discount_end_date?: string;
+  image: string;
+  images?: string[];
+  video_url?: string;
+  description: string;
+  category: string;
+  created_at?: string;
+};
+
+function transformProductData(product: RawProductData): Product | null {
   if (!product) return null;
   
   return {

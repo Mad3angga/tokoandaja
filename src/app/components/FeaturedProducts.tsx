@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import Slider from 'react-slick';
 import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
 import { getFeaturedProducts, Product } from '@/lib/products';
@@ -30,7 +29,7 @@ function getRemainingDays(endDateStr: string): number {
 }
 
 // Komponen tombol next/prev kustom untuk slider
-const NextArrow = (props: any) => {
+const NextArrow = (props: { className?: string; style?: React.CSSProperties; onClick?: () => void }) => {
   const { className, style, onClick } = props;
   return (
     <div
@@ -43,7 +42,7 @@ const NextArrow = (props: any) => {
   );
 };
 
-const PrevArrow = (props: any) => {
+const PrevArrow = (props: { className?: string; style?: React.CSSProperties; onClick?: () => void }) => {
   const { className, style, onClick } = props;
   return (
     <div
@@ -57,8 +56,8 @@ const PrevArrow = (props: any) => {
 };
 
 export default function FeaturedProducts() {
-  // State untuk melacak slide aktif dan produk unggulan
-  const [currentSlide, setCurrentSlide] = useState(0);
+  // State untuk produk unggulan
+  const [, setCurrentSlide] = useState(0);
   const [featuredProduct, setFeaturedProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   
@@ -100,7 +99,7 @@ export default function FeaturedProducts() {
     autoplaySpeed: 3000,
     nextArrow: <NextArrow />,
     prevArrow: <PrevArrow />,
-    beforeChange: (_: any, next: number) => setCurrentSlide(next),
+    beforeChange: (_: unknown, next: number) => setCurrentSlide(next),
   };
   
   // Jika masih loading atau tidak ada produk unggulan
