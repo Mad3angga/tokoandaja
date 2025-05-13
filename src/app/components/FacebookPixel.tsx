@@ -2,10 +2,11 @@
 
 import { usePathname, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { FB_PIXEL_ID, pageview } from '@/lib/fbpixel';
 
-export default function FacebookPixel() {
+// Komponen inner yang menggunakan useSearchParams
+function FacebookPixelTracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -17,6 +18,11 @@ export default function FacebookPixel() {
     pageview();
   }, [pathname, searchParams]);
 
+  return null;
+}
+
+// Komponen utama yang membungkus dengan Suspense
+export default function FacebookPixel() {
   // Jika FB_PIXEL_ID tidak ada, jangan render apa-apa
   if (!FB_PIXEL_ID) return null;
 
@@ -41,6 +47,9 @@ export default function FacebookPixel() {
           `,
         }}
       />
+      <Suspense fallback={null}>
+        <FacebookPixelTracker />
+      </Suspense>
       <noscript>
         <img
           height="1"
