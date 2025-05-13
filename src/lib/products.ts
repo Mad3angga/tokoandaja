@@ -18,6 +18,11 @@ export type Product = {
 
 // Mengambil semua produk dari database
 export async function getAllProducts(): Promise<Product[]> {
+  if (!supabase) {
+    console.error('Supabase client is not initialized');
+    return [];
+  }
+
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -70,6 +75,11 @@ function transformProductData(product: RawProductData): Product | null {
 
 // Mengambil produk berdasarkan ID
 export async function getProductById(id: string): Promise<Product | null> {
+  if (!supabase) {
+    console.error('Supabase client is not initialized');
+    return null;
+  }
+
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -90,6 +100,11 @@ export async function getProductById(id: string): Promise<Product | null> {
 
 // Mengambil produk berdasarkan kategori
 export async function getProductsByCategory(category: string): Promise<Product[]> {
+  if (!supabase) {
+    console.error('Supabase client is not initialized');
+    return [];
+  }
+
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -107,6 +122,11 @@ export async function getProductsByCategory(category: string): Promise<Product[]
 
 // Mengambil produk unggulan (produk dengan diskon)
 export async function getFeaturedProducts(limit: number = 1): Promise<Product[]> {
+  if (!supabase) {
+    console.error('Supabase client is not initialized');
+    return [];
+  }
+
   const { data, error } = await supabase
     .from('products')
     .select('*')
