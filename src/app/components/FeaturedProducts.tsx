@@ -4,11 +4,16 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Slider from 'react-slick';
 import { FaArrowRight, FaArrowLeft } from 'react-icons/fa';
+import { FaWhatsapp, FaTimes, FaCheckCircle, FaQrcode } from 'react-icons/fa';
 import { getFeaturedProducts, Product } from '@/lib/products';
+import ProductOptions from './ProductOptions';
 
 // Import CSS untuk slider
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+
+// Custom styles for animations
+import { useRouter } from 'next/navigation';
 
 // Fungsi untuk menghitung sisa hari diskon
 function getRemainingDays(endDateStr: string): number {
@@ -56,12 +61,16 @@ const PrevArrow = (props: { className?: string; style?: React.CSSProperties; onC
 };
 
 export default function FeaturedProducts() {
+  const router = useRouter();
   // State untuk produk unggulan
   const [, setCurrentSlide] = useState(0);
   const [featuredProduct, setFeaturedProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [viewerCount, setViewerCount] = useState<number | null>(null);
   const [showViewerPopup, setShowViewerPopup] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [finalPrice, setFinalPrice] = useState<number>(0);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
   
   // Format harga dalam Rupiah - using a more consistent approach to avoid hydration errors
   const formatPrice = (price: number) => {
@@ -76,6 +85,7 @@ export default function FeaturedProducts() {
         const featuredProducts = await getFeaturedProducts(1);
         if (featuredProducts && featuredProducts.length > 0) {
           setFeaturedProduct(featuredProducts[0]);
+          setFinalPrice(featuredProducts[0].price);
         }
       } catch (error) {
         console.error('Error loading featured product:', error);
@@ -103,6 +113,27 @@ export default function FeaturedProducts() {
     }, 2000); // Popup akan muncul setelah 2 detik
     
     return () => clearTimeout(popupTimer);
+  }, []);
+  
+  // Listen for price updates from ProductOptions component
+  useEffect(() => {
+    const handlePriceUpdate = (e: CustomEvent) => {
+      setFinalPrice(e.detail.price);
+    };
+    
+    const handleOptionUpdate = (e: CustomEvent) => {
+      setSelectedOption(e.detail.selectedOption);
+    };
+    
+    // Add event listeners
+    window.addEventListener('priceUpdate', handlePriceUpdate as EventListener);
+    window.addEventListener('optionUpdate', handleOptionUpdate as EventListener);
+    
+    // Clean up event listeners
+    return () => {
+      window.removeEventListener('priceUpdate', handlePriceUpdate as EventListener);
+      window.removeEventListener('optionUpdate', handleOptionUpdate as EventListener);
+    };
   }, []);
   
   // Konfigurasi slider
@@ -142,7 +173,7 @@ export default function FeaturedProducts() {
   
   // Format harga asli dan harga diskon
   const formattedOriginalPrice = formatPrice(featuredProduct.originalPrice || 0);
-  const formattedPrice = formatPrice(featuredProduct.price);
+  const formattedPrice = formatPrice(finalPrice || featuredProduct.price);
   
   // Hitung sisa hari diskon
   const remainingDays = getRemainingDays(featuredProduct.discountEndDate || '');
@@ -224,22 +255,105 @@ export default function FeaturedProducts() {
                 >
                   Detail produk
                 </a>
-                <a 
-                  href={`https://wa.me/6282135626476?text=Halo%2C%20saya%20tertarik%20dengan%20produk%20*${encodeURIComponent(featuredProduct.name)}*%20dengan%20harga%20${encodeURIComponent(formattedPrice)}%20yang%20sedang%20diskon.%20Apakah%20masih%20tersedia%3F`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button 
+                  onClick={() => setShowPaymentModal(true)}
                   className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-3 rounded text-center text-sm flex items-center justify-center transition"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
-                  </svg>
-                  Beli
-                </a>
+                  Beli Sekarang
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Payment Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 bg-gray-500/20 z-50 flex items-center justify-center p-4 animate-fadeIn backdrop-blur-[2px]">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-scaleIn">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-gray-900">Pembayaran</h3>
+                <button 
+                  onClick={() => setShowPaymentModal(false)}
+                  className="text-gray-500 hover:text-gray-700 transition-colors duration-200 rounded-full p-1 hover:bg-gray-100"
+                  aria-label="Close"
+                >
+                  <FaTimes className="h-5 w-5" />
+                </button>
+              </div>
+              
+              <div>
+                <div className="mb-4">
+                  <p className="text-gray-700 mb-2">Produk: <span className="font-semibold">{featuredProduct.name}</span></p>
+                  
+                  {/* Menambahkan opsi produk */}
+                  {featuredProduct.options && featuredProduct.options.length > 0 && (
+                    <div className="mb-4">
+                      <p className="text-gray-700 mb-2">Pilihan Produk:</p>
+                      <ProductOptions 
+                        productId={featuredProduct.id} 
+                        basePrice={featuredProduct.price} 
+                        options={featuredProduct.options}
+                      />
+                    </div>
+                  )}
+                  
+                  <p className="text-gray-700 mb-4">Total: <span className="font-semibold text-green-600">{formattedPrice}</span></p>
+                  
+                  <div className="border border-gray-200 rounded-lg p-4 mb-4 shadow-sm">
+                    <div className="flex items-center justify-center mb-2">
+                      <FaQrcode className="text-blue-500 mr-2" />
+                      <h4 className="text-center font-semibold text-black">Pembayaran QRIS</h4>
+                    </div>
+                    <div className="flex justify-center mb-3">
+                      <div className="bg-gray-100 p-3 rounded-lg border border-gray-200 shadow-inner">
+                        <div className="relative">
+                          <Image 
+                            src="/qris-sample.png" 
+                            alt="QRIS Code" 
+                            width={200} 
+                            height={200} 
+                            className="mx-auto"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 text-center mb-2">Scan kode QR di atas menggunakan aplikasi e-wallet atau mobile banking Anda</p>
+                    <p className="text-xs text-gray-500 text-center mb-4">Pembayaran akan diverifikasi secara otomatis</p>
+                    
+                    <div className="border-t border-gray-200 pt-4 mt-2">
+                      <p className="text-sm text-gray-700 text-center mb-3">Setelah melakukan pembayaran, silakan hubungi kami:</p>
+                      
+                      <a 
+                        href={`https://wa.me/6282135626476?text=Halo%2C%20saya%20baru%20saja%20membeli%20produk%20*${encodeURIComponent(featuredProduct.name)}*%20dengan%20harga%20${encodeURIComponent(formattedPrice)}${selectedOption ? `%20dengan%20pilihan%20*${encodeURIComponent(selectedOption)}*` : ''}.%20Mohon%20informasi%20selanjutnya%20untuk%20pengiriman.%20Terima%20kasih.`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center transition-all duration-200 transform hover:scale-[1.02] shadow-md"
+                      >
+                        <FaWhatsapp className="mr-2 text-xl" />
+                        Hubungi via WhatsApp
+                      </a>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                    <p className="text-sm text-yellow-800 text-center">Harap segera hubungi kami setelah melakukan pembayaran untuk konfirmasi dan proses pengiriman</p>
+                  </div>
+                </div>
+                
+                <button
+                  onClick={() => setShowPaymentModal(false)}
+                  className="w-full bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200 transform hover:scale-[1.02] flex items-center justify-center"
+                >
+                  <FaTimes className="mr-2" />
+                  Tutup
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

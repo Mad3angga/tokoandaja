@@ -17,6 +17,10 @@ export const products = [
     // URL video produk
     videoUrl: 'https://www.example.com/videos/kemeja-pria-casual.mp4',
     description: 'Kemeja casual pria dengan bahan katun premium, nyaman dipakai sehari-hari.',
-    category: 'pakaian'
+    category: 'pakaian',
+    options: [
+      { name: '1 Battery', priceAdjustment: 0 },
+      { name: '2 Battery', priceAdjustment: 50000 }
+    ]
   }
 ];

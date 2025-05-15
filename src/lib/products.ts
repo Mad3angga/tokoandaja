@@ -1,6 +1,11 @@
 import { supabase } from './supabase';
 
 // Tipe data untuk produk
+export type ProductOption = {
+  name: string;
+  priceAdjustment: number;
+};
+
 export type Product = {
   id: string;
   name: string;
@@ -14,6 +19,8 @@ export type Product = {
   description: string;
   category: string;
   createdAt?: string;
+  options?: ProductOption[];
+  selectedOption?: string;
 };
 
 // Mengambil semua produk dari database
@@ -39,6 +46,11 @@ export async function getAllProducts(): Promise<Product[]> {
 
 // Fungsi untuk mengubah snake_case ke camelCase
 // Define a type for the raw product data from the database
+type RawProductOption = {
+  name: string;
+  price_adjustment: number;
+};
+
 type RawProductData = {
   id: string;
   name: string;
@@ -52,6 +64,8 @@ type RawProductData = {
   description: string;
   category: string;
   created_at?: string;
+  options?: RawProductOption[];
+  selected_option?: string;
 };
 
 function transformProductData(product: RawProductData): Product | null {
@@ -69,7 +83,12 @@ function transformProductData(product: RawProductData): Product | null {
     videoUrl: product.video_url,
     description: product.description,
     category: product.category,
-    createdAt: product.created_at
+    createdAt: product.created_at,
+    options: product.options?.map(opt => ({
+      name: opt.name,
+      priceAdjustment: opt.price_adjustment
+    })),
+    selectedOption: product.selected_option
   };
 }
 

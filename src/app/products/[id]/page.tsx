@@ -3,6 +3,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { FaWhatsapp, FaArrowLeft } from 'react-icons/fa';
 import { notFound } from 'next/navigation';
+import ProductOptions from '../../components/ProductOptions';
+import QRISPayment from '../../components/QRISPayment';
 
 // @ts-ignore - Ignoring type checking for this component to fix build issues
 export async function generateMetadata({ params }: any) {
@@ -29,12 +31,23 @@ export default async function ProductDetail({ params }: any) {
     notFound();
   }
   
+  // Add sample product options if none exist
+  if (!product.options || product.options.length === 0) {
+    product.options = [
+      { name: 'Battery 1', priceAdjustment: 0 },
+      { name: 'Battery 2', priceAdjustment: 150000 }
+    ];
+  }
+  
   // Format harga dalam Rupiah - using a more consistent approach to avoid hydration errors
   const formattedPrice = `Rp ${product.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
   
   // Fungsi untuk membuat pesan WhatsApp
   const createWhatsAppMessage = () => {
-    const message = `Halo, saya tertarik dengan produk *${product.name}* dengan harga ${formattedPrice}. Apakah masih tersedia?`;
+    const optionInfo = product.selectedOption 
+      ? `dengan pilihan: ${product.selectedOption}` 
+      : '';
+    const message = `Halo, saya tertarik dengan produk *${product.name}* dengan harga ${formattedPrice} ${optionInfo}. Apakah masih tersedia?`;
     return encodeURIComponent(message);
   };
   
@@ -80,23 +93,50 @@ export default async function ProductDetail({ params }: any) {
           {/* Detail Produk */}
           <div>
             <h1 className="text-2xl md:text-3xl font-bold mb-2 text-gray-900">{product.name}</h1>
-            <p className="text-2xl text-green-600 font-bold mb-4">{formattedPrice}</p>
+            <p className="text-2xl text-green-600 font-bold mb-4" id="product-price">{formattedPrice}</p>
+            
+            <script dangerouslySetInnerHTML={{ __html: `
+              window.addEventListener('priceUpdate', function(e) {
+                document.getElementById('product-price').textContent = e.detail.formattedPrice;
+              });
+              
+              // Listen for option updates for QRIS integration
+              window.addEventListener('optionUpdate', function(e) {
+                window.selectedProductOption = e.detail.selectedOption;
+                // Update any elements that need to know about the selected option
+                const qrisElements = document.querySelectorAll('[data-qris-option]');
+                qrisElements.forEach(function(el) {
+                  el.setAttribute('data-selected-option', e.detail.selectedOption || '');
+                });
+              });
+            `}} />
             
             <div className="mb-6">
               <h2 className="text-lg font-semibold mb-2 text-gray-900">Deskripsi Produk</h2>
               <p className="text-gray-800 whitespace-pre-line">{product.description}</p>
             </div>
             
-            {/* Tombol Beli */}
-            <a 
-              href={`https://wa.me/6282135626476?text=${createWhatsAppMessage()}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full md:w-auto bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg text-center flex items-center justify-center transition"
-            >
-              <FaWhatsapp className="mr-2" size={20} />
-              Beli via WhatsApp
-            </a>
+            {/* Product Options */}
+            {product.options && product.options.length > 0 && (
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold mb-2 text-gray-900">Pilihan Produk</h2>
+                <ProductOptions 
+                  productId={product.id} 
+                  basePrice={product.price} 
+                  options={product.options}
+                />
+              </div>
+            )}
+            
+            {/* QRIS Payment Component */}
+            <div className="w-full" data-qris-option="true">
+              <QRISPayment 
+                productName={product.name}
+                price={product.price + (product.selectedOption ? 
+                  (product.options?.find(opt => opt.name === product.selectedOption)?.priceAdjustment || 0) : 0)}
+                selectedOption={product.selectedOption || null}
+              />
+            </div>
           </div>
         </div>
         
