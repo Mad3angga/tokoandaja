@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { FaShoppingBag, FaWhatsapp, FaBars } from 'react-icons/fa';
+import { FaShoppingBag, FaBars } from 'react-icons/fa';
 import { useState } from 'react';
 
 export default function Header() {
@@ -32,14 +32,6 @@ export default function Header() {
             <Link href="/products" className="text-gray-700 hover:text-green-600 transition">
               Produk
             </Link>
-            <Link 
-              href="https://wa.me/6282135626476" 
-              target="_blank"
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full flex items-center transition"
-            >
-              <FaWhatsapp className="mr-2" />
-              <span>Chat Kami</span>
-            </Link>
           </nav>
         </div>
 
@@ -60,15 +52,6 @@ export default function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Produk
-              </Link>
-              <Link 
-                href="https://wa.me/6282135626476" 
-                target="_blank"
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full flex items-center justify-center transition"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <FaWhatsapp className="mr-2" />
-                <span>Chat Kami</span>
               </Link>
             </div>
           </nav>

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from 'next/link';
-import { FaWhatsapp } from 'react-icons/fa';
 
 export default function Hero() {
   return (
@@ -22,15 +21,6 @@ export default function Hero() {
             >
               Lihat Produk
             </Link>
-            <a 
-              href="https://wa.me/6282135626476" 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-green-800 hover:bg-green-900 text-white px-6 py-3 rounded-full font-medium flex items-center justify-center transition duration-300"
-            >
-              <FaWhatsapp className="mr-2" size={20} />
-              Chat Kami
-            </a>
           </div>
         </div>
       </div>
